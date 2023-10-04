@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema({
-  fullName: {
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
     type: String,
     required: true,
   },
@@ -10,28 +14,13 @@ const userSchema = mongoose.Schema({
     required: true,
     unique: true,
   },
-  phoneNumber: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   password: {
     type: String,
     required: true,
   },
-  groupSpecialCode: {
-    type: String,
-    required: false,
-    unique: false,
-  },
-  state: {
-    type: String,
-    required: false,
-  },
-  city: {
-    type: String,
-    required: false,
-  },
+  FavoriteBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
+  recentlyViewedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
+  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
   createdAt: {
     type: Date,
     default: Date.now,

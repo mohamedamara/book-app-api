@@ -1,18 +1,13 @@
 const { body, validationResult } = require("express-validator");
 
 exports.registerNewUserValidation = [
-  body("fullName").notEmpty().withMessage("Full name is required"),
+  body("firstName").notEmpty().withMessage("First name is required"),
+  body("lastName").notEmpty().withMessage("Last name is required"),
   body("email")
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Enter a valid email address")
-    .normalizeEmail(),
-  body("phoneNumber")
-    .notEmpty()
-    .withMessage("Phone number is required")
-    .isMobilePhone()
-    .withMessage("Enter a valid phone number"),
+    .withMessage("Enter a valid email address"),
   body("password")
     .notEmpty()
     .withMessage("Password is required")

@@ -23,23 +23,12 @@ const hashPassword = async (password) => {
 };
 
 const saveUser = async (requestData, res) => {
-  const {
-    fullName,
-    email,
-    phoneNumber,
-    password,
-    groupSpecialCode,
-    state,
-    city,
-  } = requestData;
+  const { firstName, lastName, email, password } = requestData;
   const newUser = new userModel({
-    fullName,
+    firstName,
+    lastName,
     email,
-    phoneNumber,
     password,
-    groupSpecialCode,
-    state,
-    city,
   });
   await newUser.save();
   const jwt = generateJsonWebToken(newUser.id);
