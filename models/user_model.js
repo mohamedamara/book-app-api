@@ -18,7 +18,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  FavoriteBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
+  favoriteBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
   recentlyViewedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
   createdAt: {
