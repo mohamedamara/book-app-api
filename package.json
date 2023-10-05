@@ -1,7 +1,7 @@
 {
-  "name": "bookstore-api",
-  "version": "1.0.0",
-  "description": "Bookstore API built with Node js and Express web framework",
+  "name": "books-app-api",
+  "version": "0.0.1",
+  "description": "Books app API built with Node js and Express web framework",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mohamedamara/bookstore-api.git"
+    "url": "git+https://github.com/mohamedamara/books-app-api.git"
   },
   "author": "Mohamed Amara",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mohamedamara/bookstore-api/issues"
+    "url": "https://github.com/mohamedamara/books-app-api/issues"
   },
-  "homepage": "https://github.com/mohamedamara/bookstore-api#readme",
+  "homepage": "https://github.com/mohamedamara/books-app-api#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
