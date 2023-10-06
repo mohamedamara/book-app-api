@@ -1,6 +1,6 @@
 {
   "name": "books-app-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Books app API built with Node js and Express web framework",
   "main": "index.js",
   "scripts": {
