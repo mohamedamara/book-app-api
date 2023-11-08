@@ -25,8 +25,8 @@ const bookSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  readCount: {
-    type: Number,
+  rating: {
+    type: mongoose.Types.Decimal128,
     default: 0,
   },
 });

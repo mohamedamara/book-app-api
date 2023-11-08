@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
 const bookModel = require("../models/book_model");
+const userModel = require("../models/user_model");
 
 exports.getBooks = async (req, res) => {
   const { searchkeyword, genre, sortby, sortorder } = req.query;
   try {
     if (Object.keys(req.query).length === 0) {
-      await getTopBooks(res);
+      await getTopAndRecentlyViewedBooks(req, res);
     }
     if (searchkeyword) {
       await getSearchedBooks(res);
@@ -19,12 +19,21 @@ exports.getBooks = async (req, res) => {
   }
 };
 
-const getTopBooks = async (res) => {
-  const books = await bookModel
+const getTopAndRecentlyViewedBooks = async (req, res) => {
+  const topBooks = await bookModel
     .find()
-    .sort({ readCount: "descending" })
+    .sort({ rating: "descending" })
     .limit(5);
-  res.json(books);
+  const recentlyViewedBooks = await getUserRecentlyViewedBooks(req);
+  res.send({ topBooks: topBooks, recentlyViewedBooks: recentlyViewedBooks });
+};
+
+const getUserRecentlyViewedBooks = async (req) => {
+  const currentUser = await userModel
+    .findById(req.userId)
+    .populate("recentlyViewedBooks");
+  const recentlyViewedBooks = currentUser.recentlyViewedBooks;
+  return recentlyViewedBooks;
 };
 
 const getSearchedBooks = async (res) => {
@@ -58,7 +67,7 @@ const saveBook = async (req, res) => {
     coverImageURL,
     genre,
     publicationDate,
-    readCount,
+    rating,
   } = req.body;
   const newBook = new bookModel({
     title,
@@ -67,7 +76,7 @@ const saveBook = async (req, res) => {
     coverImageURL,
     genre,
     publicationDate,
-    readCount,
+    rating,
   });
   const book = await newBook.save();
   res.status(201).json(book);
