@@ -20,7 +20,6 @@ const userSchema = mongoose.Schema({
   },
   favoriteBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
   recentlyViewedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "books" }],
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
   createdAt: {
     type: Date,
     default: Date.now,
