@@ -8,7 +8,7 @@ exports.addNewReviewValidation = [
     .withMessage("Review content must be a String"),
   body("reviewRating")
     .notEmpty()
-    .isInt({ min: 1, max: 5 })
+    .isFloat({ min: 1, max: 5 })
     .withMessage("Review rating must be a numerical value between 1 and 5"),
   (req, res, next) => {
     const errors = validationResult(req);

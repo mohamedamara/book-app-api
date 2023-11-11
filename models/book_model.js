@@ -1,34 +1,40 @@
 const mongoose = require("mongoose");
+const utils = require("../utils/utils");
 
-const bookSchema = mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
+const bookSchema = mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    author: {
+      type: String,
+      required: true,
+    },
+    contentURL: {
+      type: String,
+      required: true,
+    },
+    coverImageURL: {
+      type: String,
+      required: true,
+    },
+    genre: {
+      type: String,
+      default: "other",
+    },
+    publicationDate: {
+      type: Date,
+      default: Date.now,
+    },
+    rating: {
+      type: mongoose.Types.Decimal128,
+      default: 0,
+      get: utils.formatRating,
+    },
+    id: false,
   },
-  author: {
-    type: String,
-    required: true,
-  },
-  contentURL: {
-    type: String,
-    required: true,
-  },
-  coverImageURL: {
-    type: String,
-    required: true,
-  },
-  genre: {
-    type: String,
-    default: "other",
-  },
-  publicationDate: {
-    type: Date,
-    default: Date.now,
-  },
-  rating: {
-    type: mongoose.Types.Decimal128,
-    default: 0,
-  },
-});
+  { toJSON: { getters: true } }
+);
 
 module.exports = mongoose.model("books", bookSchema);
