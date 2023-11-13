@@ -62,9 +62,13 @@ exports.getProfileInfo = async (req, res) => {
 };
 
 const getUserReviews = async (req) => {
-  const reviews = await reviewModel.find({ createdBy: req.userId }).sort({
-    createdAT: "descending",
-  });
+  const reviews = await reviewModel
+    .find({ createdBy: req.userId })
+    .select("-createdBy")
+    .populate("createdFor")
+    .sort({
+      createdAT: "descending",
+    });
   return reviews;
 };
 
