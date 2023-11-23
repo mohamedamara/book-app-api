@@ -37,9 +37,13 @@ const getUserRecentlyViewedBooks = async (req) => {
 };
 
 const getSearchedBooks = async (searchkeyword, res) => {
-  const books = await bookModel.find({
-    title: { $regex: searchkeyword, $options: "i" },
-  });
+  const searchQuery = {
+    $or: [
+      { title: { $regex: searchkeyword, $options: "i" } },
+      { author: { $regex: searchkeyword, $options: "i" } },
+    ],
+  };
+  const books = await bookModel.find(searchQuery);
   res.json(books);
 };
 
