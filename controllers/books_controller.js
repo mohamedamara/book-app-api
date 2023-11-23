@@ -8,10 +8,10 @@ exports.getBooks = async (req, res) => {
       await getTopAndRecentlyViewedBooks(req, res);
     }
     if (searchkeyword) {
-      await getSearchedBooks(res);
+      await getSearchedBooks(searchkeyword, res);
     }
     if (genre && sortby && sortorder) {
-      await getFilteredBooks(sortby, sortorder, res);
+      await getFilteredBooks(genre, sortby, sortorder, res);
     }
   } catch (error) {
     console.error(error.message);
@@ -36,14 +36,14 @@ const getUserRecentlyViewedBooks = async (req) => {
   return recentlyViewedBooks;
 };
 
-const getSearchedBooks = async (res) => {
+const getSearchedBooks = async (searchkeyword, res) => {
   const books = await bookModel.find({
     title: { $regex: searchkeyword, $options: "i" },
   });
   res.json(books);
 };
 
-const getFilteredBooks = async (sortby, sortorder, res) => {
+const getFilteredBooks = async (genre, sortby, sortorder, res) => {
   const sortQuery = {};
   sortQuery[sortby] = sortorder;
   const books = await bookModel.find({ genre: genre }).sort(sortQuery);
