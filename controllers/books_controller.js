@@ -2,7 +2,7 @@ const bookModel = require("../models/book_model");
 const userModel = require("../models/user_model");
 
 exports.getBooks = async (req, res) => {
-  const { searchkeyword, genre, sortby, sortorder } = req.query;
+  const { searchkeyword, rating, genre, sortby, sortorder } = req.query;
   try {
     if (Object.keys(req.query).length === 0) {
       await getTopAndRecentlyViewedBooks(req, res);
@@ -10,8 +10,8 @@ exports.getBooks = async (req, res) => {
     if (searchkeyword) {
       await getSearchedBooks(searchkeyword, res);
     }
-    if (genre && sortby && sortorder) {
-      await getFilteredBooks(genre, sortby, sortorder, res);
+    if (rating && genre && sortby && sortorder) {
+      await getFilteredBooks(rating, genre, sortby, sortorder, res);
     }
   } catch (error) {
     console.error(error.message);
@@ -47,10 +47,22 @@ const getSearchedBooks = async (searchkeyword, res) => {
   res.json(books);
 };
 
-const getFilteredBooks = async (genre, sortby, sortorder, res) => {
+const getFilteredBooks = async (rating, genre, sortby, sortorder, res) => {
+  const parsedRating = Number(rating);
+  if (isNaN(parsedRating)) {
+    return res.status(400).json({ message: "Error parsing rating value" });
+  }
+  if (parsedRating < 1 || parsedRating > 5) {
+    return res.status(400).json({ message: "Rating value out of range" });
+  }
   const sortQuery = {};
   sortQuery[sortby] = sortorder;
-  const books = await bookModel.find({ genre: genre }).sort(sortQuery);
+  const books = await bookModel
+    .find({
+      genre: genre,
+      rating: { $gt: parsedRating, $lt: parsedRating + 1 },
+    })
+    .sort(sortQuery);
   res.json(books);
 };
 
