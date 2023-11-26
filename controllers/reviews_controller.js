@@ -12,15 +12,7 @@ exports.addReview = async (req, res) => {
         .status(409)
         .json({ message: "This user already has a review for this book" });
     }
-    const { reviewContent, reviewRating, bookId } = req.body;
-    const newReview = new reviewModel({
-      reviewContent,
-      reviewRating,
-      createdBy: req.userId,
-      createdFor: bookId,
-    });
-    const review = await newReview.save();
-    res.status(201).json(review);
+    await saveReview(req, res);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -37,4 +29,16 @@ const checkIfBookExists = async (req) => {
 
 const checkIfUserAlreadyWroteReviewForThisBook = async (bookId) => {
   return await reviewModel.findOne({ createdFor: bookId });
+};
+
+const saveReview = async (req, res) => {
+  const { reviewContent, reviewRating, bookId } = req.body;
+  const newReview = new reviewModel({
+    reviewContent,
+    reviewRating,
+    createdBy: req.userId,
+    createdFor: bookId,
+  });
+  const review = await newReview.save();
+  res.status(201).json(review);
 };
