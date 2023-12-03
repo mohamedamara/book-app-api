@@ -10,6 +10,11 @@ const router = express.Router();
 // @access    Private
 router.get("/books", authVerification, booksController.getBooks);
 
+// @route     GET api/book/:id/book-details
+// @desc      Get book details
+// @access    Private
+router.get("/books/:bookId/book-details", authVerification, booksController.getBookDetails);
+
 // @route     POST api/books
 // @desc      Add new book
 // @access    Public
