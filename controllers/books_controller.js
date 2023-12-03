@@ -1,5 +1,7 @@
 const bookModel = require("../models/book_model");
 const userModel = require("../models/user_model");
+const reviewModel = require("../models/review_model");
+const mongoose = require("mongoose");
 
 exports.getBooks = async (req, res) => {
   const { searchkeyword, rating, genre, sortby, sortorder } = req.query;
@@ -64,6 +66,54 @@ const getFilteredBooks = async (rating, genre, sortby, sortorder, res) => {
     })
     .sort(sortQuery);
   res.json(books);
+};
+
+exports.getBookDetails = async (req, res) => {
+  const { bookId } = req.params;
+  const reviews = await getBookReviews(bookId, res);
+  const isBookReviewedByUser = await checkIfBookReviewedByUser(req, bookId);
+  const isBookInUserFavorites = await checkIfBookInUserFavorites(req, bookId);
+  res.json({
+    bookReviews: reviews,
+    isBookReviewedByUser: isBookReviewedByUser ? true : false,
+    isBookInUserFavorites: isBookInUserFavorites ? true : false,
+  });
+};
+
+const getBookReviews = async (bookId, res) => {
+  if (
+    !(await checkIfBookIdIsValid(bookId)) ||
+    !(await checkIfBookExists(bookId))
+  ) {
+    return res.status(404).json({ message: "Book not found" });
+  }
+  const reviews = await reviewModel
+    .find({ createdFor: bookId })
+    .select("-createdFor")
+    .populate("createdBy", "-_id firstName lastName")
+    .sort({
+      createdAT: "descending",
+    });
+  return reviews;
+};
+
+const checkIfBookIdIsValid = async (bookId) => {
+  return mongoose.Types.ObjectId.isValid(bookId);
+};
+
+const checkIfBookExists = async (bookId) => {
+  return await bookModel.findById(bookId);
+};
+
+const checkIfBookReviewedByUser = async (req, bookId) => {
+  return await reviewModel.findOne({
+    createdFor: bookId,
+    createdBy: req.userId,
+  });
+};
+const checkIfBookInUserFavorites = async (req, bookId) => {
+  const currentUser = await userModel.findById(req.userId);
+  return currentUser.favoriteBooks.includes(bookId);
 };
 
 exports.addNewBook = async (req, res) => {
