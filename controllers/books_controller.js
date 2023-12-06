@@ -90,7 +90,7 @@ const getBookReviews = async (bookId, res) => {
   const reviews = await reviewModel
     .find({ createdFor: bookId })
     .select("-createdFor")
-    .populate("createdBy", "-_id firstName lastName")
+    .populate("createdBy", "-_id firstName lastName email")
     .sort({
       createdAT: "descending",
     });
