@@ -42,6 +42,10 @@ const saveReview = async (req, res) => {
     createdBy: req.userId,
     createdFor: bookId,
   });
-  const review = await newReview.save();
-  res.status(201).json(review);
+  const savedReview = await newReview.save();
+  const reviewDetails = await reviewModel
+    .findById(savedReview._id)
+    .select("-createdFor")
+    .populate("createdBy", "-_id firstName lastName email");
+  res.status(201).json(reviewDetails);
 };

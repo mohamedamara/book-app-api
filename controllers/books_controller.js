@@ -70,12 +70,12 @@ const getFilteredBooks = async (rating, genre, sortby, sortorder, res) => {
 
 exports.getBookDetails = async (req, res) => {
   const { bookId } = req.params;
-  const reviews = await getBookReviews(bookId, res);
-  const isBookReviewedByUser = await checkIfBookReviewedByUser(req, bookId);
+  const bookReviews = await getBookReviews(bookId, res);
+  const userReviewForThisBook = await getUserReviewForThisBook(req, bookId);
   const isBookInUserFavorites = await checkIfBookInUserFavorites(req, bookId);
   res.json({
-    bookReviews: reviews,
-    isBookReviewedByUser: isBookReviewedByUser ? true : false,
+    bookReviews: bookReviews,
+    userReviewForThisBook: userReviewForThisBook,
     isBookInUserFavorites: isBookInUserFavorites ? true : false,
   });
 };
@@ -105,12 +105,16 @@ const checkIfBookExists = async (bookId) => {
   return await bookModel.findById(bookId);
 };
 
-const checkIfBookReviewedByUser = async (req, bookId) => {
-  return await reviewModel.findOne({
-    createdFor: bookId,
-    createdBy: req.userId,
-  });
+const getUserReviewForThisBook = async (req, bookId) => {
+  return await reviewModel
+    .findOne({
+      createdFor: bookId,
+      createdBy: req.userId,
+    })
+    .select("-createdFor")
+    .populate("createdBy", "-_id firstName lastName email");
 };
+
 const checkIfBookInUserFavorites = async (req, bookId) => {
   const currentUser = await userModel.findById(req.userId);
   return currentUser.favoriteBooks.includes(bookId);
