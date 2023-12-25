@@ -116,7 +116,7 @@ exports.addBookToRecents = async (req, res) => {
     if (!(await checkIfBookIdIsValid(req)) || !(await checkIfBookExists(req))) {
       return res.status(404).json({ message: "Book not found" });
     }
-    if (await checkIfBookAlreadyInRecent(req, res)) {
+    if (await checkIfBookAlreadyInRecents(req, res)) {
       return res
         .status(409)
         .json({ message: "Book already in user's recents" });
@@ -140,7 +140,7 @@ const checkIfBookAlreadyInFavorites = async (req, res) => {
   return currentUser.favoriteBooks.includes(req.body.bookId);
 };
 
-const checkIfBookAlreadyInRecent = async (req, res) => {
+const checkIfBookAlreadyInRecents = async (req, res) => {
   const currentUser = await userModel.findById(req.userId);
   return currentUser.recentlyViewedBooks.includes(req.body.bookId);
 };
