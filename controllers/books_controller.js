@@ -73,10 +73,12 @@ exports.getBookDetails = async (req, res) => {
   const bookReviews = await getBookReviews(bookId, res);
   const userReviewForThisBook = await getUserReviewForThisBook(req, bookId);
   const isBookInUserFavorites = await checkIfBookInUserFavorites(req, bookId);
+  const isBookInUserRecents = await checkIfBookInUserRecents(req, bookId);
   res.json({
     bookReviews: bookReviews,
     userReviewForThisBook: userReviewForThisBook,
     isBookInUserFavorites: isBookInUserFavorites ? true : false,
+    isBookInUserRecents: isBookInUserRecents ? true : false,
   });
 };
 
@@ -118,6 +120,11 @@ const getUserReviewForThisBook = async (req, bookId) => {
 const checkIfBookInUserFavorites = async (req, bookId) => {
   const currentUser = await userModel.findById(req.userId);
   return currentUser.favoriteBooks.includes(bookId);
+};
+
+const checkIfBookInUserRecents = async (req, bookId) => {
+  const currentUser = await userModel.findById(req.userId);
+  return currentUser.recentlyViewedBooks.includes(bookId);
 };
 
 exports.addNewBook = async (req, res) => {
