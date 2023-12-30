@@ -140,18 +140,24 @@ const saveBook = async (req, res) => {
   const {
     title,
     author,
+    contentOverview,
     contentURL,
     coverImageURL,
     genre,
+    language,
+    numberOfPages,
     publicationDate,
     rating,
   } = req.body;
   const newBook = new bookModel({
     title,
     author,
+    contentOverview,
     contentURL,
     coverImageURL,
     genre,
+    language,
+    numberOfPages,
     publicationDate,
     rating,
   });

@@ -11,6 +11,10 @@ const bookSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    contentOverview: {
+      type: String,
+      required: true,
+    },
     contentURL: {
       type: String,
       required: true,
@@ -22,6 +26,14 @@ const bookSchema = mongoose.Schema(
     genre: {
       type: String,
       default: "other",
+    },
+    language: {
+      type: String,
+      required: true,
+    },
+    numberOfPages: {
+      type: Number,
+      required: true,
     },
     publicationDate: {
       type: Date,
