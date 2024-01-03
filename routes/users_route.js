@@ -4,6 +4,7 @@ const {
   registerNewUserValidation,
 } = require("../middlewares/validators/users_route_validation");
 const authVerification = require("../middlewares/auth");
+const bookVerification = require("../middlewares/book");
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const router = express.Router();
 router.get("/users", authVerification, usersController.getProfileInfo);
 
 // @route     POST api/users
-// @desc      Register a user
+// @desc      Register a new user
 // @access    Public
 router.post(
   "/users",
@@ -22,38 +23,41 @@ router.post(
 );
 
 // @route     GET api/favoritebooks
-// @desc      Get user favorite books
+// @desc      Get user's favorite books
 // @access    Private
 router.get(
-  "/favoritebooks",
+  "/favorite-books",
   authVerification,
   usersController.getUserFavoriteBooks
 );
 
 // @route     POST api/favoritebooks
-// @desc      add book to favorites
+// @desc      add book to user's favorites
 // @access    Private
 router.post(
-  "/favoritebooks",
+  "/favorite-books/:bookId",
   authVerification,
+  bookVerification,
   usersController.addBookToFavorites
 );
 
 // @route     DELETE api/favoritebooks
-// @desc      delete book from favorites
+// @desc      delete book from user's favorites
 // @access    Private
 router.delete(
-  "/favoritebooks",
+  "/favorite-books/:bookId",
   authVerification,
+  bookVerification,
   usersController.deleteBookFromFavorites
 );
 
 // @route     POST api/recentlyviewedbooks
-// @desc      add book to recents
+// @desc      add book to user's recents
 // @access    Private
 router.post(
-  "/recentlyviewedbooks",
+  "/recently-viewed-books/:bookId",
   authVerification,
+  bookVerification,
   usersController.addBookToRecents
 );
 

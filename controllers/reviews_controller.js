@@ -1,12 +1,7 @@
-const mongoose = require("mongoose");
 const reviewModel = require("../models/review_model");
-const bookModel = require("../models/book_model");
 
 exports.addReview = async (req, res) => {
   try {
-    if (!(await checkIfBookIdIsValid(req)) || !(await checkIfBookExists(req))) {
-      return res.status(404).json({ message: "Book not found" });
-    }
     if (await checkIfUserAlreadyWroteReviewForThisBook(req)) {
       return res
         .status(409)
@@ -17,14 +12,6 @@ exports.addReview = async (req, res) => {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
-
-const checkIfBookIdIsValid = async (req) => {
-  return mongoose.Types.ObjectId.isValid(req.body.bookId);
-};
-
-const checkIfBookExists = async (req) => {
-  return await bookModel.findById(req.body.bookId);
 };
 
 const checkIfUserAlreadyWroteReviewForThisBook = async (req) => {

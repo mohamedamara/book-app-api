@@ -4,6 +4,7 @@ const {
   addNewReviewValidation,
 } = require("../middlewares/validators/add_review_validation");
 const authVerification = require("../middlewares/auth");
+const bookVerification = require("../middlewares/book");
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post(
   "/reviews",
   authVerification,
+  bookVerification,
   addNewReviewValidation,
   reviewsController.addReview
 );

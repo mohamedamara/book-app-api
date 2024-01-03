@@ -1,19 +1,24 @@
 const bookModel = require("../models/book_model");
 const userModel = require("../models/user_model");
 const reviewModel = require("../models/review_model");
-const mongoose = require("mongoose");
 
 exports.getBooks = async (req, res) => {
-  const { searchkeyword, rating, genre, sortby, sortorder } = req.query;
+  const {
+    "search-keyword": searchKeyword,
+    rating,
+    genre,
+    "sort-by": sortBy,
+    "sort-order": sortOrder,
+  } = req.query;
   try {
     if (Object.keys(req.query).length === 0) {
       await getTopAndRecentlyViewedBooks(req, res);
     }
-    if (searchkeyword) {
-      await getSearchedBooks(searchkeyword, res);
+    if (searchKeyword) {
+      await getSearchedBooks(searchKeyword, res);
     }
-    if (rating && genre && sortby && sortorder) {
-      await getFilteredBooks(rating, genre, sortby, sortorder, res);
+    if (rating && genre && sortBy && sortOrder) {
+      await getFilteredBooks(rating, genre, sortBy, sortOrder, res);
     }
   } catch (error) {
     console.error(error.message);
@@ -34,22 +39,22 @@ const getUserRecentlyViewedBooks = async (req) => {
   const currentUser = await userModel
     .findById(req.userId)
     .populate("recentlyViewedBooks");
-  const recentlyViewedBooks = currentUser.recentlyViewedBooks;
+  const recentlyViewedBooks = currentUser.recentlyViewedBooks.slice(0, 10);
   return recentlyViewedBooks;
 };
 
-const getSearchedBooks = async (searchkeyword, res) => {
+const getSearchedBooks = async (searchKeyword, res) => {
   const searchQuery = {
     $or: [
-      { title: { $regex: searchkeyword, $options: "i" } },
-      { author: { $regex: searchkeyword, $options: "i" } },
+      { title: { $regex: searchKeyword, $options: "i" } },
+      { author: { $regex: searchKeyword, $options: "i" } },
     ],
   };
   const books = await bookModel.find(searchQuery);
   res.json(books);
 };
 
-const getFilteredBooks = async (rating, genre, sortby, sortorder, res) => {
+const getFilteredBooks = async (rating, genre, sortBy, sortOrder, res) => {
   const parsedRating = Number(rating);
   if (isNaN(parsedRating)) {
     return res.status(400).json({ message: "Error parsing rating value" });
@@ -58,7 +63,7 @@ const getFilteredBooks = async (rating, genre, sortby, sortorder, res) => {
     return res.status(400).json({ message: "Rating value out of range" });
   }
   const sortQuery = {};
-  sortQuery[sortby] = sortorder;
+  sortQuery[sortBy] = sortOrder;
   const books = await bookModel
     .find({
       genre: genre,
@@ -83,12 +88,6 @@ exports.getBookDetails = async (req, res) => {
 };
 
 const getBookReviews = async (bookId, res) => {
-  if (
-    !(await checkIfBookIdIsValid(bookId)) ||
-    !(await checkIfBookExists(bookId))
-  ) {
-    return res.status(404).json({ message: "Book not found" });
-  }
   const reviews = await reviewModel
     .find({ createdFor: bookId })
     .select("-createdFor")
@@ -97,14 +96,6 @@ const getBookReviews = async (bookId, res) => {
       createdAT: "descending",
     });
   return reviews;
-};
-
-const checkIfBookIdIsValid = async (bookId) => {
-  return mongoose.Types.ObjectId.isValid(bookId);
-};
-
-const checkIfBookExists = async (bookId) => {
-  return await bookModel.findById(bookId);
 };
 
 const getUserReviewForThisBook = async (req, bookId) => {
@@ -129,38 +120,34 @@ const checkIfBookInUserRecents = async (req, bookId) => {
 
 exports.addNewBook = async (req, res) => {
   try {
-    await saveBook(req, res);
+    const {
+      title,
+      author,
+      contentOverview,
+      contentURL,
+      coverImageURL,
+      genre,
+      language,
+      numberOfPages,
+      publicationDate,
+      rating,
+    } = req.body;
+    const newBook = new bookModel({
+      title,
+      author,
+      contentOverview,
+      contentURL,
+      coverImageURL,
+      genre,
+      language,
+      numberOfPages,
+      publicationDate,
+      rating,
+    });
+    const book = await newBook.save();
+    res.status(201).json(book);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
-
-const saveBook = async (req, res) => {
-  const {
-    title,
-    author,
-    contentOverview,
-    contentURL,
-    coverImageURL,
-    genre,
-    language,
-    numberOfPages,
-    publicationDate,
-    rating,
-  } = req.body;
-  const newBook = new bookModel({
-    title,
-    author,
-    contentOverview,
-    contentURL,
-    coverImageURL,
-    genre,
-    language,
-    numberOfPages,
-    publicationDate,
-    rating,
-  });
-  const book = await newBook.save();
-  res.status(201).json(book);
 };

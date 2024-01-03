@@ -1,8 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const userModel = require("../models/user_model");
-const bookModel = require("../models/book_model");
 const reviewModel = require("../models/review_model");
 require("dotenv").config();
 
@@ -86,15 +84,18 @@ exports.getUserFavoriteBooks = async (req, res) => {
 
 exports.addBookToFavorites = async (req, res) => {
   try {
-    if (!(await checkIfBookIdIsValid(req)) || !(await checkIfBookExists(req))) {
-      return res.status(404).json({ message: "Book not found" });
-    }
     if (await checkIfBookAlreadyInFavorites(req, res)) {
       return res
         .status(409)
         .json({ message: "Book already in user's favorites" });
+    } else {
+      updatedUser = await userModel.findOneAndUpdate(
+        { _id: req.userId },
+        { $push: { favoriteBooks: req.params.bookId } },
+        { new: true }
+      );
+      res.status(200).json({ favoriteBooks: updatedUser.favoriteBooks });
     }
-    await updateUserFavorites(false, req, res);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -102,20 +103,30 @@ exports.addBookToFavorites = async (req, res) => {
 
 exports.deleteBookFromFavorites = async (req, res) => {
   try {
-    if (!(await checkIfBookIdIsValid(req)) || !(await checkIfBookExists(req))) {
-      return res.status(404).json({ message: "Book not found" });
+    if (!(await checkIfBookAlreadyInFavorites(req, res))) {
+      return res
+        .status(409)
+        .json({ message: "Book is not in user's favorites" });
+    } else {
+      updatedUser = await userModel.findOneAndUpdate(
+        { _id: req.userId },
+        { $pull: { favoriteBooks: req.params.bookId } },
+        { new: true }
+      );
+      res.status(200).json({ favoriteBooks: updatedUser.favoriteBooks });
     }
-    await updateUserFavorites(true, req, res);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
+const checkIfBookAlreadyInFavorites = async (req, res) => {
+  const currentUser = await userModel.findById(req.userId);
+  return currentUser.favoriteBooks.includes(req.params.bookId);
+};
+
 exports.addBookToRecents = async (req, res) => {
   try {
-    if (!(await checkIfBookIdIsValid(req)) || !(await checkIfBookExists(req))) {
-      return res.status(404).json({ message: "Book not found" });
-    }
     if (await checkIfBookAlreadyInRecents(req, res)) {
       return res
         .status(409)
@@ -127,46 +138,15 @@ exports.addBookToRecents = async (req, res) => {
   }
 };
 
-const checkIfBookIdIsValid = async (req) => {
-  return mongoose.Types.ObjectId.isValid(req.body.bookId);
-};
-
-const checkIfBookExists = async (req) => {
-  return await bookModel.findById(req.body.bookId);
-};
-
-const checkIfBookAlreadyInFavorites = async (req, res) => {
-  const currentUser = await userModel.findById(req.userId);
-  return currentUser.favoriteBooks.includes(req.body.bookId);
-};
-
 const checkIfBookAlreadyInRecents = async (req, res) => {
   const currentUser = await userModel.findById(req.userId);
-  return currentUser.recentlyViewedBooks.includes(req.body.bookId);
-};
-
-const updateUserFavorites = async (isDelete, req, res) => {
-  let updatedUser;
-  if (isDelete) {
-    updatedUser = await userModel.findOneAndUpdate(
-      { _id: req.userId },
-      { $pull: { favoriteBooks: req.body.bookId } },
-      { new: true }
-    );
-  } else {
-    updatedUser = await userModel.findOneAndUpdate(
-      { _id: req.userId },
-      { $push: { favoriteBooks: req.body.bookId } },
-      { new: true }
-    );
-  }
-  res.status(200).json({ favoriteBooks: updatedUser.favoriteBooks });
+  return currentUser.recentlyViewedBooks.includes(req.params.bookId);
 };
 
 const updateUserRecentlyViewedBooks = async (req, res) => {
   const updatedUser = await userModel.findOneAndUpdate(
     { _id: req.userId },
-    { $push: { recentlyViewedBooks: req.body.bookId } },
+    { $push: { recentlyViewedBooks: req.params.bookId } },
     { new: true }
   );
   res
