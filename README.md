@@ -1,1 +1,1 @@
-# Books app API built with Node js and Express web framework
+# Book app API built with Node js and Express web framework
